@@ -22,7 +22,7 @@ body {
 }
 
 .login-nav-btn {
-    background-color: #E63946;
+    background-color: #087ae5;
     color: white;
     padding: 8px 20px;
     border-radius: 6px;
@@ -40,7 +40,7 @@ body {
 }
 
 .logo span {
-    color: #E63946; 
+    color: #087ae5; 
     text-transform: capitalize; 
     margin-left: 1px;
 }
@@ -67,7 +67,7 @@ body {
 
 .primary-btn {
     display: inline-block;
-    background-color: #E63946;
+    background-color: #087ae5;
     color: white;
     padding: 12px 28px;
     border-radius: 8px;
@@ -115,18 +115,20 @@ body {
 }
 
 .card-link {
-    color: #E63946;
+    color: #087ae5;
     text-decoration: none;
     font-weight: 600;
     font-size: 14px;
 }
 
 /* Login Card Container (Used in student-login.html) */
-body.login-page-body {
+.login-page-body {
     display: flex;
     justify-content: center;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
+    background-color: #f8f9fc;
+    margin: 0;
 }
 
 .login-card {
@@ -172,13 +174,13 @@ body.login-page-body {
 }
 
 .input-group input:focus {
-    border-color: #E63946;
+    border-color: #087ae5;
 }
 
 /* Passkey Button */
 .passkey-btn {
     width: 100%;
-    background-color: #E63946; 
+    background-color: #1662ee; 
     color: white;
     border: none;
     padding: 14px;
@@ -194,7 +196,7 @@ body.login-page-body {
 }
 
 .passkey-btn:hover {
-    background-color: #d62828;
+    background-color: #087ae5;
 }
 
 .passkey-btn:active {
@@ -213,7 +215,7 @@ body.login-page-body {
 }
 
 .footer-text a {
-    color: #E63946;
+    color: #087ae5;
     text-decoration: none;
     font-weight: 600;
 }
@@ -233,12 +235,6 @@ body.login-page-body {
 }
 
 .back-link:hover {
-    color: #E63946;
+    color: #1662ee;
 }
-/* Ensure Login Pages are Centered */
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-}
+
