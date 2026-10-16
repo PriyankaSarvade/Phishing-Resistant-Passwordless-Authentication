@@ -17,7 +17,7 @@ if (registerButton) {
         try {
             registerButton.disabled = true;
 
-            const optionsResponse = await fetch("/api/register/options", {
+            const optionsResponse = await fetch("http://localhost:3000/api/register/options", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email })
@@ -33,7 +33,7 @@ if (registerButton) {
                 optionsJSON: options
             });
 
-            const verifyResponse = await fetch("/api/register/verify", {
+            const verifyResponse = await fetch("http://localhost:3000/api/register/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

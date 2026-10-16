@@ -12,11 +12,16 @@ const {
 const db = require("./database");
 
 const app = express();
+const cors = require('cors');
+app.use(cors({
+    origin: ['http://127.0.0.1:5501', 'http://127.0.0.1:5500', 'http://localhost:5500', 'http://localhost:5501'],
+    credentials: true
+}));
 const PORT = 3000;
 
 const RP_NAME = "cyberNova";
 const RP_ID = "localhost";
-const ORIGIN = "http://localhost:3000";
+const ORIGIN = "http://localhost:5501";
 
 const pendingChallenges = new Map();
 const pendingLoginChallenges = new Map();
@@ -119,7 +124,7 @@ app.post("/api/register/verify", async (req, res) => {
         const verification = await verifyRegistrationResponse({
             response,
             expectedChallenge: pending.challenge,
-            expectedOrigin: ORIGIN,
+            expectedOrigin: "http://localhost:5501",
             expectedRPID: RP_ID,
             requireUserVerification: true
         });

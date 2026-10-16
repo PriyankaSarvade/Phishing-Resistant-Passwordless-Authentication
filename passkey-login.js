@@ -20,7 +20,7 @@ if (loginButton) {
             loginButton.disabled = true;
 
             // Step 1: Ask backend for login options
-            const optionsResponse = await fetch("/api/login/options", {
+            const optionsResponse = await fetch("http://localhost:3000/api/login/options", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email })
@@ -38,7 +38,7 @@ if (loginButton) {
             });
 
             // Step 3: Send the passkey response to backend
-            const verifyResponse = await fetch("/api/login/verify", {
+            const verifyResponse = await fetch("http://localhost:3000/api/login/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
