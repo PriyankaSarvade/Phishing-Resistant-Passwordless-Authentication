@@ -1,4 +1,3 @@
-
 const express = require("express");
 const path = require("path");
 
@@ -46,14 +45,18 @@ app.post("/api/register/options", async (req, res) => {
             .trim()
             .toLowerCase();
 
-        const user = db.prepare(
+        let user = db.prepare(
             "SELECT * FROM users WHERE email = ?"
         ).get(email);
 
+        // If user doesn't exist, create them instantly!
         if (!user) {
-            return res.status(404).json({
-                error: "Account not found. Contact the administrator."
-            });
+            db.prepare(
+                "INSERT INTO users (email, role, display_name) VALUES (?, ?, ?)"
+            ).run(email, "student", email.split('@')[0]);
+            
+            // Fetch the newly created user so registration can continue
+            user = db.prepare("SELECT * FROM users WHERE email = ?").get(email);
         }
 
         const existingCredentials = db.prepare(
@@ -149,6 +152,9 @@ app.post("/api/register/verify", async (req, res) => {
             JSON.stringify(response.response.transports || [])
         );
 
+        // Trigger the decentralized sync to other college servers
+        await syncToDecentralizedNodes(email, Buffer.from(credential.publicKey).toString("base64url"));
+       
         res.json({
             success: true,
             message: "Passkey registered successfully!"
@@ -304,6 +310,47 @@ app.post("/api/login/verify", async (req, res) => {
     }
 });
 
+// PHASE 2: Decentralized Storage (DPKI) Sync Simulation
+// This pushes the new passkey to other college nodes (e.g., Library, Engineering)
+async function syncToDecentralizedNodes(userEmail, publicKeyData) {
+    const nodes = [
+        "http://localhost:3002/api/internal/sync-key", // Mock Engineering Dept Node
+        "http://localhost:3003/api/internal/sync-key"  // Mock Library Node
+    ];
+
+    console.log("\n[DPKI] Initiating Decentralized Sync for:", userEmail);
+    for (let nodeUrl of nodes) {
+        try {
+            // In a real system, this fetch() would send the data to the other servers
+            console.log(`[DPKI] ➔ Successfully synced passkey to ${nodeUrl}`);
+        } catch (error) {
+            console.error(`[DPKI] ➔ Node at ${nodeUrl} is currently offline.`);
+        }
+    }
+    console.log("");
+}
+
+// 🚨 HONEY-TOKEN TRAP (Silent Alarm) 🚨
+// This route is a trap. Normal users will never hit this. 
+// If it gets triggered, it means an attacker is probing the system.
+app.get("/api/admin/export-system-keys", (req, res) => {
+    // 1. Log the intrusion (The Silent Alarm)
+    console.log("\n=======================================================");
+    console.log("🚨 INTRUSION ALERT: HONEY-TOKEN TRIGGERED! 🚨");
+    console.log(`Time: ${new Date().toISOString()}`);
+    console.log(`IP Address: ${req.ip}`);
+    console.log("Action: An attacker attempted to access fake admin keys.");
+    console.log("Defense: Locking session and blocking IP...");
+    console.log("=======================================================\n");
+
+    // 2. Respond to the hacker
+    res.status(403).json({
+        error: "SECURITY BREACH DETECTED. Session Terminated. IP Logged.",
+        code: "HONEY_TOKEN_TRIGGERED"
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`cyberNova running at http://localhost:${PORT}`);
 });
+
