@@ -3,32 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cyberNova | Staff Login</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>cyberNova | Staff Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="login-page-body">
-
-    <div class="login-card">
-        <a href="index.html" class="back-link">&larr; Back to Home</a>
-        <div class="logo">cyber<span>Nova</span></div>
-        <div class="subtitle">Staff Portal — Passwordless Login</div>
+    <div class="login-card staff-border">
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Home</a>
+        <div class="logo"><i class="fa-solid fa-shield-halved logo-icon"></i> cyber<span>Nova</span></div>
+        <div class="portal-indicator staff-tag"><i class="fa-solid fa-building-columns"></i> Faculty / Staff Portal</div>
+        
+        <p class="subtitle">High-Security Administrative Gateway</p>
 
         <div class="input-group">
-            <label for="username">College Email / Username</label>
-            <input type="email" id="username" placeholder="staff@nkocet.edu" required>
+            <label for="username"><i class="fa-solid fa-envelope"></i> Faculty / Staff Email</label>
+            <input type="email" id="username" placeholder="staff@nkocet.edu" value="staff@nkocet.edu" required>
         </div>
 
-        <!-- Links to a success/dashboard state for frontend demonstration -->
-        <button type="button" id="passkeyLogin">Sign in with Passkey</button>
+        <button type="button" id="passkeyLogin" class="passkey-btn staff-btn">
+            <i class="fa-solid fa-fingerprint"></i> Sign In with Passkey / Biometrics
+        </button>
 
-        <div class="footer-text">
-            New device? <button type="button" id="registerPasskey">Register your passkey here</button>
+        <div class="proximity-note">
+            <i class="fa-brands fa-bluetooth-b"></i> <span>Hardware Key (YubiKey) or Smartphone Proximity Supported</span>
         </div>
+
+        <div class="register-box">
+            <p>New Faculty Device?</p>
+            <button type="button" id="registerPasskey" class="register-btn">
+                <i class="fa-solid fa-plus-circle"></i> Enroll Administrative Passkey
+            </button>
+        </div>
+
+        <div id="statusMessage" class="status-box hidden"></div>
     </div>
-    
-<script type="module" src="passkey-register.js"></script>
-<script type="module" src="passkey-login.js"></script>
+
+    <!-- Script Modules -->
+    <script type="module" src="passkey-register.js"></script>
+    <script type="module" src="passkey-login.js"></script>
 </body>
 </html>

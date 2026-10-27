@@ -1,44 +1,48 @@
+import { startAuthentication } from "https://esm.sh/@simplewebauthn/browser@14.0.0";
 
-import { startAuthentication } from "https://esm.sh/@simplewebauthn/browser";
+const loginBtn = document.getElementById("passkeyLogin");
+const statusBox = document.getElementById("statusMessage");
 
-const loginButton = document.getElementById("passkeyLogin");
+function showStatus(text, type = "info") {
+    if (!statusBox) return;
+    statusBox.className = `status-box ${type}`;
+    statusBox.innerHTML = text;
+    statusBox.classList.remove("hidden");
+}
 
-if (loginButton) {
-    loginButton.addEventListener("click", async (event) => {
-        event.preventDefault();
-
-        const email = document.getElementById("username")?.value
-            .trim()
-            .toLowerCase();
+if (loginBtn) {
+    loginBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("username")?.value.trim().toLowerCase();
 
         if (!email) {
-            alert("Please enter your registered email first.");
+            showStatus("⚠️ Please enter your email address.", "error");
             return;
         }
 
         try {
-            loginButton.disabled = true;
+            loginBtn.disabled = true;
+            showStatus("<i class='fa-solid fa-spinner fa-spin'></i> Requesting cryptographic challenge...", "info");
 
-            // Step 1: Ask backend for login options
-            const optionsResponse = await fetch("http://localhost:3000/api/login/options", {
+            // 1. Request authentication options
+            const res = await fetch("/api/login/options", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email })
             });
 
-            const options = await optionsResponse.json();
+            const options = await res.json();
+            if (!res.ok) throw new Error(options.error || "Failed to start passkey login.");
 
-            if (!optionsResponse.ok) {
-                throw new Error(options.error || "Could not start login.");
-            }
+            showStatus("<i class='fa-solid fa-fingerprint'></i> Scan Fingerprint / Face ID or authenticate via Phone Bluetooth...", "info");
 
-            // Step 2: Ask device to verify the passkey
-            const credential = await startAuthentication({
-                optionsJSON: options
-            });
+            // 2. Invoke WebAuthn Assertion
+            const credential = await startAuthentication({ optionsJSON: options });
 
-            // Step 3: Send the passkey response to backend
-            const verifyResponse = await fetch("http://localhost:3000/api/login/verify", {
+            showStatus("<i class='fa-solid fa-shield-halved'></i> Verifying cryptographic signature...", "info");
+
+            // 3. Verify response on backend
+            const verifyRes = await fetch("/api/login/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -47,19 +51,20 @@ if (loginButton) {
                 })
             });
 
-            const result = await verifyResponse.json();
+            const result = await verifyRes.json();
+            if (!verifyRes.ok) throw new Error(result.error || "Authentication failed.");
 
-            if (!verifyResponse.ok) {
-                throw new Error(result.error || "Login failed.");
-            }
+            showStatus("✅ <strong>Identity Verified!</strong> Redirecting to secure portal...", "success");
 
-            alert("Passkey verified successfully!");
+            setTimeout(() => {
+                window.location.href = result.redirect;
+            }, 1000);
 
-            window.location.href = result.redirect;
-        } catch (error) {
-            alert(error.message || "Passkey login failed.");
+        } catch (err) {
+            console.error("Login error:", err);
+            showStatus(`❌ ${err.message || "Passkey verification aborted."}`, "error");
         } finally {
-            loginButton.disabled = false;
+            loginBtn.disabled = false;
         }
     });
 }

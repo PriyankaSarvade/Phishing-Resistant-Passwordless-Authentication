@@ -1,58 +1,67 @@
+import { startRegistration } from "https://esm.sh/@simplewebauthn/browser@14.0.0";
 
-import { startRegistration } from "https://esm.sh/@simplewebauthn/browser";
+const registerBtn = document.getElementById("registerPasskey");
+const statusBox = document.getElementById("statusMessage");
 
-const registerButton = document.getElementById("registerPasskey");
+function showStatus(text, type = "info") {
+    if (!statusBox) return;
+    statusBox.className = `status-box ${type}`;
+    statusBox.innerHTML = text;
+    statusBox.classList.remove("hidden");
+}
 
-if (registerButton) {
-    registerButton.addEventListener("click", async () => {
-        const email = document.getElementById("username")?.value
-            .trim()
-            .toLowerCase();
-
+if (registerBtn) {
+    registerBtn.addEventListener("click", async () => {
+        const email = document.getElementById("username")?.value.trim().toLowerCase();
         if (!email) {
-            alert("Please enter your registered email first.");
+            showStatus("⚠️ Please enter your email address first.", "error");
             return;
         }
 
         try {
-            registerButton.disabled = true;
+            registerBtn.disabled = true;
+            showStatus("<i class='fa-solid fa-spinner fa-spin'></i> Preparing biometric enrollment challenge...", "info");
 
-            const optionsResponse = await fetch("http://localhost:3000/api/register/options", {
+            // 1. Fetch registration options from server
+            const res = await fetch("/api/register/options", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email })
             });
 
-            const options = await optionsResponse.json();
+            const options = await res.json();
+            if (!res.ok) throw new Error(options.error || "Failed to initialize registration.");
 
-            if (!optionsResponse.ok) {
-                throw new Error(options.error || "Could not start registration.");
-            }
+            showStatus("<i class='fa-solid fa-fingerprint'></i> Touch your sensor, scan Face ID, or pair phone via QR...", "info");
 
-            const credential = await startRegistration({
-                optionsJSON: options
-            });
+            // 2. Invoke WebAuthn API on browser
+            const credential = await startRegistration({ optionsJSON: options });
 
-            const verifyResponse = await fetch("http://localhost:3000/api/register/verify", {
+            // 3. Prompt user for device nickname (e.g. 'Anush MacBook' or 'iPhone 15 Pro')
+            const deviceName = prompt("Give this passkey a nickname (e.g. 'My Laptop TouchID' or 'iPhone FaceID'):", "Primary Biometric Token") || "Primary Authenticator";
+
+            showStatus("<i class='fa-solid fa-lock'></i> Cryptographically verifying attestation on server...", "info");
+
+            // 4. Send credential to backend for verification and storage
+            const verifyRes = await fetch("/api/register/verify", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     email,
-                    response: credential
+                    response: credential,
+                    deviceName
                 })
             });
 
-            const result = await verifyResponse.json();
+            const result = await verifyRes.json();
+            if (!verifyRes.ok) throw new Error(result.error || "Enrollment failed.");
 
-            if (!verifyResponse.ok) {
-                throw new Error(result.error || "Passkey registration failed.");
-            }
-
-            alert("Passkey registered successfully!");
-        } catch (error) {
-            alert(error.message || "Registration cancelled or failed.");
+            showStatus("✅ <strong>Success!</strong> Passkey securely enrolled. You can now log in instantly.", "success");
+        } catch (err) {
+            console.error("Enrollment error:", err);
+            showStatus(`❌ ${err.message || "Registration cancelled."}`, "error");
         } finally {
-            registerButton.disabled = false;
+            registerBtn.disabled = false;
         }
     });
 }

@@ -3,32 +3,127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cyberNova | Staff Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>cyberNova | Staff SOC & Administrative Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="background-color: #f8f9fc; display: block; padding: 40px;">
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dash-header">
+            <div class="logo"><i class="fa-solid fa-shield-halved logo-icon"></i> cyber<span>Nova</span> <span class="badge staff-badge">SOC Admin</span></div>
+            <div class="user-pill">
+                <span id="userDisplayName"><i class="fa-solid fa-user-shield"></i> Faculty Staff</span>
+                <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </header>
 
-    <div style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px;">
-            <div class="logo" style="font-size: 20px;">cyber<span>Nova</span></div>
-            <a href="index.html" style="color: #E63946; text-decoration: none; font-weight: 600;">Secure Logout</a>
+        <!-- SOC Telemetry Stats -->
+        <div class="soc-stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="fa-solid fa-shield-check"></i></div>
+                <div>
+                    <h3 id="statTotalPasskeys">0</h3>
+                    <p>Enrolled Passkeys</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon red"><i class="fa-solid fa-shield-virus"></i></div>
+                <div>
+                    <h3 id="statPhishingBlocked">0</h3>
+                    <p>Phishing Attacks Thwarted</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="fa-solid fa-bell"></i></div>
+                <div>
+                    <h3 id="statHoneytoken">0</h3>
+                    <p>Honeypot Intrusions Trapped</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <h3 id="statTotalUsers">0</h3>
+                    <p>Active Portal Users</p>
+                </div>
+            </div>
         </div>
 
-        <h1 style="font-size: 24px; color: #111; margin-bottom: 10px;">Welcome, Staff 👋</h1>
-        <p style="color: #666; margin-bottom: 30px;">You have successfully authenticated to the administrative portal using a secure passkey.</p>
-
-        <div style="background: #e8f5e9; border: 1px solid #c8e6c9; padding: 20px; border-radius: 8px; color: #2e7d32; font-weight: 600;">
-            ✓ Status: Biometric Verification Passed (FIDO2 WebAuthn Active)
+        <!-- Live SOC Audit Stream -->
+        <div class="dash-card" style="margin-top: 24px;">
+            <div class="card-header-flex">
+                <h3><i class="fa-solid fa-radar"></i> Live Security Operations Center (SOC) Audit Stream</h3>
+                <button onclick="loadSOCData()" class="refresh-btn"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+            </div>
+            <div class="table-responsive">
+                <table class="soc-table">
+                    <thead>
+                        <tr>
+                            <th>Severity</th>
+                            <th>Event Type</th>
+                            <th>Entity</th>
+                            <th>IP Address</th>
+                            <th>Details</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody id="socLogsBody">
+                        <tr><td colspan="6" style="text-align:center;">Loading audit trail...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
+
+        <!-- Hidden Honeypot Link -->
+        <a href="/api/admin/export-system-keys" style="display:none;" id="admin-export">Export System Keys</a>
     </div>
-<!-- 
-      HONEY-TOKEN BAIT: 
-      Hackers scanning the source code for hidden endpoints will find this.
-      Normal users won't see it because it is hidden via CSS.
-    -->
-    <a href="http://localhost:3000/api/admin/export-system-keys" style="display:none;" id="admin-export">
-      Export System Keys
-    </a>
+
+    <script>
+        async function loadSOCData() {
+            try {
+                const meRes = await fetch("/api/me");
+                if (!meRes.ok) { window.location.href = "staff-login.html"; return; }
+                const meData = await meRes.json();
+                document.getElementById("userDisplayName").innerHTML = `<i class="fa-solid fa-user-shield"></i> ${meData.user.displayName}`;
+
+                const res = await fetch("/api/admin/soc-telemetry");
+                const data = await res.json();
+
+                document.getElementById("statTotalPasskeys").textContent = data.stats.totalPasskeys;
+                document.getElementById("statPhishingBlocked").textContent = data.stats.phishingBlocked;
+                document.getElementById("statHoneytoken").textContent = data.stats.honeytokenTriggers;
+                document.getElementById("statTotalUsers").textContent = data.stats.totalUsers;
+
+                const tbody = document.getElementById("socLogsBody");
+                if (data.logs.length === 0) {
+                    tbody.innerHTML = "<tr><td colspan='6'>No security alerts recorded yet.</td></tr>";
+                    return;
+                }
+
+                tbody.innerHTML = data.logs.map(log => `
+                    <tr>
+                        <td><span class="sev-tag ${log.severity.toLowerCase()}">${log.severity}</span></td>
+                        <td><strong>${log.event_type}</strong></td>
+                        <td>${log.email || 'N/A'}</td>
+                        <td><code>${log.ip_address}</code></td>
+                        <td><small>${log.details}</small></td>
+                        <td><small>${new Date(log.timestamp).toLocaleTimeString()}</small></td>
+                    </tr>
+                `).join("");
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await fetch("/api/logout", { method: "POST" });
+            window.location.href = "index.html";
+        });
+
+        loadSOCData();
+        setInterval(loadSOCData, 5000); // Live poll every 5s
+    </script>
 </body>
 </html>

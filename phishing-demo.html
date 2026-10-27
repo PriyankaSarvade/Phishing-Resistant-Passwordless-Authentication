@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>cyberNova | Phishing Attack Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <header class="dash-header">
+            <div class="logo"><i class="fa-solid fa-shield-halved logo-icon"></i> cyber<span>Nova</span></div>
+            <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Exit Simulator</a>
+        </header>
+
+        <div class="welcome-banner" style="background: linear-gradient(135deg, #1e1b4b, #312e81);">
+            <h1>⚔️ Live Cyber Threat Lab: Phishing Simulation</h1>
+            <p>Prove to the competition jury why traditional passwords fail and why FIDO2 Passkeys are mathematically immune to credential phishing attacks.</p>
+        </div>
+
+        <div class="attack-grid">
+            <!-- Scenario 1: Password Phishing -->
+            <div class="attack-card failure-card">
+                <div class="attack-header">
+                    <span class="attack-tag fail"><i class="fa-solid fa-triangle-exclamation"></i> VULNERABLE</span>
+                    <h3>Scenario A: Legacy Password System</h3>
+                </div>
+                <p>An attacker clones the college login portal on <code>http://fake-college-portal.xyz</code> and emails a phishing link.</p>
+                
+                <div class="sim-input-box">
+                    <label>Victim enters password:</label>
+                    <input type="password" id="simPassword" value="SecretPassword123!" placeholder="Type any password">
+                    <button onclick="simulatePasswordTheft()" class="sim-btn red-btn">Simulate User Submitting Form</button>
+                </div>
+
+                <div id="passwordResult" class="sim-terminal hidden">
+                    <span class="term-red">[CRITICAL BREACH]</span> Attacker proxy intercepted credentials:<br>
+                    <strong>Captured Password:</strong> <span id="capturedPwd"></span><br>
+                    <strong>Attacker Action:</strong> Account compromised, MFA bypassed.
+                </div>
+            </div>
+
+            <!-- Scenario 2: Passkey Phishing Defense -->
+            <div class="attack-card success-card">
+                <div class="attack-header">
+                    <span class="attack-tag pass"><i class="fa-solid fa-shield-check"></i> PHISHING-RESISTANT</span>
+                    <h3>Scenario B: cyberNova Passkey System</h3>
+                </div>
+                <p>The victim is tricked into clicking the exact same fake portal: <code>http://fake-college-portal.xyz</code>.</p>
+                
+                <div class="sim-input-box">
+                    <label>Victim attempts passkey login:</label>
+                    <input type="email" id="simPasskeyEmail" value="student@nkocet.edu" placeholder="student@nkocet.edu">
+                    <button onclick="simulatePasskeyDefense()" class="sim-btn blue-btn">Simulate Passkey on Phishing Domain</button>
+                </div>
+
+                <div id="passkeyResult" class="sim-terminal hidden">
+                    <span class="term-green">[CRYPTOGRAPHIC DEFENSE ENGAGED]</span><br>
+                    <strong>Browser Origin Check:</strong> <code>http://fake-college-portal.xyz</code> &ne; <code>localhost</code> (RP_ID)<br>
+                    <strong>FIDO2 Cryptographic Handshake:</strong> The authenticator uses SHA-256 hash of the real origin. The private key refuses to sign the challenge for the rogue site.<br>
+                    <strong>Server Defense:</strong> Origin mismatch detected. Intrusion alert broadcast to SOC. Credential remains 100% safe!
+                </div>
+            </div>
+        </div>
+
+        <!-- Honeytoken Demonstration -->
+        <div class="dash-card" style="margin-top: 24px;">
+            <h3><i class="fa-solid fa-honey-pot"></i> Honeypot Trap Simulation</h3>
+            <p>Attackers scanning the web application for exposed configuration files find a fake hidden link <code>/api/admin/export-system-keys</code>.</p>
+            <button onclick="triggerHoneypot()" class="sim-btn purple-btn"><i class="fa-solid fa-spider"></i> Trigger Honey-Token Silent Alarm</button>
+            <div id="honeyResult" class="sim-terminal hidden" style="margin-top: 15px;"></div>
+        </div>
+    </div>
+
+    <script>
+        function simulatePasswordTheft() {
+            const pwd = document.getElementById("simPassword").value;
+            document.getElementById("capturedPwd").textContent = pwd;
+            document.getElementById("passwordResult").classList.remove("hidden");
+        }
+
+        async function simulatePasskeyDefense() {
+            const email = document.getElementById("simPasskeyEmail").value;
+            try {
+                const res = await fetch("/api/login/verify", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        email,
+                        isPhishingSimulation: true,
+                        simulatedOrigin: "http://fake-college-portal.xyz"
+                    })
+                });
+
+                document.getElementById("passkeyResult").classList.remove("hidden");
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function triggerHoneypot() {
+            try {
+                const res = await fetch("/api/admin/export-system-keys");
+                const data = await res.json();
+                const box = document.getElementById("honeyResult");
+                box.classList.remove("hidden");
+                box.innerHTML = `<span class="term-red">[HONEYTOKEN TRIPPED]</span> Server Response: 403 Forbidden<br><strong>Status:</strong> ${data.error}<br><em>Intrusion logged in Staff SOC Telemetry tab!</em>`;
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    </script>
+</body>
+</html>

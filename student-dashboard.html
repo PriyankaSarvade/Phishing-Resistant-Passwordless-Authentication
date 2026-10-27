@@ -3,32 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cyberNova | Dashboard</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>cyberNova | Student Academic Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
-<body style="background-color: #f8f9fc; display: block; padding: 40px;">
+<body class="dashboard-body">
+    <div class="dashboard-container">
+        <!-- Top Header -->
+        <header class="dash-header">
+            <div class="logo"><i class="fa-solid fa-shield-halved logo-icon"></i> cyber<span>Nova</span></div>
+            <div class="user-pill">
+                <span id="userDisplayName"><i class="fa-solid fa-user-graduate"></i> Loading Student...</span>
+                <button id="logoutBtn" class="logout-btn"><i class="fa-solid fa-right-from-bracket"></i> Logout</button>
+            </div>
+        </header>
 
-    <div style="max-width: 800px; margin: 0 auto; background: white; padding: 40px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
-        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 30px;">
-            <div class="logo" style="font-size: 20px;">cyber<br><span>Nova</span></div>
-            <a href="index.html" style="color: #087ae5; text-decoration: none; font-weight: 600;">Secure Logout</a>
+        <!-- Main Banner -->
+        <div class="welcome-banner">
+            <h1>Academic Dashboard</h1>
+            <p>Session Authenticated with Phishing-Resistant FIDO2 Passkey.</p>
+            <div class="security-badge"><i class="fa-solid fa-check-double"></i> Biometric Verification Active &bull; Zero Password Transmission</div>
         </div>
 
-        <h1 style="font-size: 24px; color: #111; margin-bottom: 10px;">Welcome, Student 👋</h1>
-        <p style="color: #666; margin-bottom: 30px;">You have successfully authenticated using a secure, phishing-resistant passkey.</p>
+        <div class="dash-grid">
+            <!-- Academic Info -->
+            <div class="dash-card">
+                <h3><i class="fa-solid fa-book-open"></i> Enrolled Courses (Demo)</h3>
+                <ul class="academic-list">
+                    <li><span>Cryptography & Network Security</span> <strong>Grade: A+</strong></li>
+                    <li><span>Advanced Cloud Architectures</span> <strong>Grade: A</strong></li>
+                    <li><span>Cybersecurity & Threat Mitigation</span> <strong>Grade: A+</strong></li>
+                </ul>
+            </div>
 
-        <div style="background: #e8f5e9; border: 1px solid #c8e6c9; padding: 20px; border-radius: 8px; color: #2e7d32; font-weight: 600;">
-            ✓ Status: Biometric Verification Passed (FIDO2 WebAuthn Active)
+            <!-- Passkey Devices Manager -->
+            <div class="dash-card">
+                <h3><i class="fa-solid fa-key"></i> Registered Hardware Tokens</h3>
+                <div id="credentialsList" class="credentials-list">Loading tokens...</div>
+            </div>
         </div>
+
+        <!-- Biometric Privacy Explainer -->
+        <div class="privacy-box">
+            <h4><i class="fa-solid fa-shield-heart"></i> Objective III: How Your Biometric Privacy is Guaranteed</h4>
+            <p>Your raw biometric data (fingerprint scan, Face ID geometry) <strong>never leaves your device</strong>. The biometric scanner unlocks the local cryptographic key inside the hardware Secure Enclave. Only an asymmetric digital signature is sent to the cyberNova server.</p>
+        </div>
+
+        <!-- Hidden Honeytoken Bait for Attackers -->
+        <a href="/api/admin/export-system-keys" style="display:none;" id="admin-export">Export System Keys</a>
     </div>
-<!-- 
-      HONEY-TOKEN BAIT: 
-      Hackers scanning the source code for hidden endpoints will find this.
-      Normal users won't see it because it is hidden via CSS.
-    -->
-    <a href="http://localhost:3000/api/admin/export-system-keys" style="display:none;" id="admin-export">
-      Export System Keys
-    </a>
+
+    <script>
+        // Check session & load user data
+        async function loadDashboard() {
+            try {
+                const res = await fetch("/api/me");
+                if (!res.ok) {
+                    window.location.href = "student-login.html";
+                    return;
+                }
+                const data = await res.json();
+                document.getElementById("userDisplayName").innerHTML = `<i class="fa-solid fa-user-graduate"></i> ${data.user.displayName} (${data.user.email})`;
+
+                const list = document.getElementById("credentialsList");
+                if (data.credentials.length === 0) {
+                    list.innerHTML = "<p>No tokens found.</p>";
+                } else {
+                    list.innerHTML = data.credentials.map(c => `
+                        <div class="cred-item">
+                            <div>
+                                <strong><i class="fa-solid fa-fingerprint"></i> ${c.device_name}</strong>
+                                <div class="cred-meta">Transports: ${c.transports.join(", ")} | Counter: ${c.counter}</div>
+                            </div>
+                            <span class="verified-tag">Active</span>
+                        </div>
+                    `).join("");
+                }
+            } catch (err) {
+                window.location.href = "student-login.html";
+            }
+        }
+
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await fetch("/api/logout", { method: "POST" });
+            window.location.href = "index.html";
+        });
+
+        loadDashboard();
+    </script>
 </body>
 </html>

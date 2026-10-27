@@ -3,41 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>cyberNova | Home</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <title>cyberNova | Phishing-Resistant Passwordless Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Top Navigation -->
+    <!-- Navigation -->
     <nav class="navbar">
-        <div class="logo">cyber<span>Nova</span></div>
-        <a href="student-login.html" class="login-nav-btn">Login</a>
+        <div class="logo"><i class="fa-solid fa-shield-halved logo-icon"></i> cyber<span>Nova</span></div>
+        <div class="nav-links">
+            <a href="phishing-demo.html" class="nav-pill demo-pill"><i class="fa-solid fa-bug"></i> Phishing Simulator</a>
+            <a href="student-login.html" class="nav-pill"><i class="fa-solid fa-graduation-cap"></i> Student Portal</a>
+            <a href="staff-login.html" class="login-nav-btn"><i class="fa-solid fa-building-columns"></i> Staff Portal</a>
+        </div>
     </nav>
 
     <!-- Hero Section -->
     <header class="hero">
-        <div class="hero-content">
-            <h1>Secure, Passwordless Access for the Future</h1>
-            <p>Eliminate phishing and credential theft entirely using FIDO2 passkeys and biometric verification.</p>
-            <a href="#portals" class="primary-btn">Get Started</a>
+        <div class="hero-badge">FIDO2 / WebAuthn Certified Architecture</div>
+        <h1>Zero Passwords. Zero Phishing.<br><span class="gradient-text">100% Cryptographic Trust.</span></h1>
+        <p>Built for educational institutions and high-security enterprise intranets. Replaces vulnerable credentials with biometric verification and proximity-based hardware tokens.</p>
+        
+        <div class="hero-actions">
+            <a href="student-login.html" class="primary-btn"><i class="fa-solid fa-fingerprint"></i> Try Student Passkey</a>
+            <a href="phishing-demo.html" class="secondary-btn"><i class="fa-solid fa-shield-virus"></i> Launch Attack Demo</a>
         </div>
     </header>
 
-    <!-- Role Selection Section -->
-    <section id="portals" class="portals-section">
-        <h2>Select Your Portal to Continue</h2>
+    <!-- Key Pillars Section -->
+    <section class="pillars-section">
+        <div class="pillar-card">
+            <div class="icon-box"><i class="fa-solid fa-key-skeleton"></i></div>
+            <h3>Eliminate Passwords</h3>
+            <p>Replaces reusable passwords with asymmetric public-key cryptography stored in hardware secure enclaves.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="icon-box alert-box"><i class="fa-solid fa-fish-fins"></i></div>
+            <h3>Phishing Resistant</h3>
+            <p>Cryptographically bound to the domain. Attackers cannot trick users into signing for a rogue origin.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="icon-box"><i class="fa-solid fa-mobile-screen-button"></i></div>
+            <h3>Proximity Tokens</h3>
+            <p>Use your Bluetooth-enabled smartphone as a roaming hardware authenticator via FIDO2 Hybrid caBLE.</p>
+        </div>
+        <div class="pillar-card">
+            <div class="icon-box"><i class="fa-solid fa-user-shield"></i></div>
+            <h3>Biometric Privacy</h3>
+            <p>Biometrics never leave the device. The server receives only a digital signature, keeping user privacy intact.</p>
+        </div>
+    </section>
+
+    <!-- Portals Section -->
+    <section class="portals-section">
+        <h2>Select an Enterprise Portal</h2>
         <div class="portal-cards">
             <div class="card">
+                <div class="badge student-badge">Academic</div>
                 <h3>Student Portal</h3>
-                <p>Access your academic dashboard securely without typing a password.</p>
-                <a href="student-login.html" class="card-link">Continue as Student &rarr;</a>
+                <p>Access coursework, grades, and registrations using biometric Touch ID, Windows Hello, or Mobile Phone.</p>
+                <a href="student-login.html" class="card-link">Authenticate as Student &rarr;</a>
             </div>
             <div class="card">
-                <h3>Staff Portal</h3>
-                <p>Manage administrative systems using hardware-backed passkeys.</p>
-                <a href="staff-login.html" class="card-link">Continue as Staff &rarr;</a>
+                <div class="badge staff-badge">Administrative</div>
+                <h3>Staff & Faculty Portal</h3>
+                <p>Manage administrative systems and view the real-time SOC security telemetry dashboard.</p>
+                <a href="staff-login.html" class="card-link">Authenticate as Staff &rarr;</a>
             </div>
         </div>
     </section>
+
+    <footer>
+        <p>cyberNova Enterprise Defense System &bull; Powered by FIDO2 WebAuthn &bull; Competition Edition</p>
+    </footer>
 </body>
 </html>
